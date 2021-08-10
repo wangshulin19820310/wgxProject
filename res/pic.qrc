@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>close.png</file>
+        <file>face.png</file>
+        <file>off.png</file>
+        <file>on.png</file>
+        <file>refresh2.png</file>
+        <file>state_traffic_four.png</file>
+        <file>state_traffic_offline.png</file>
+        <file>state_traffic_one.png</file>
+        <file>state_traffic_three.png</file>
+        <file>state_traffic_two.png</file>
+        <file>state_wifi_four.png</file>
+        <file>state_wifi_offline.png</file>
+        <file>state_wifi_one.png</file>
+        <file>state_wifi_three.png</file>
+        <file>state_wifi_two.png</file>
+        <file>faceright.png</file>
+        <file>defaultpic.png</file>
+    </qresource>
+</RCC>

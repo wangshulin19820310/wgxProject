@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/btn_close_black.png</file>
+        <file>image/btn_close_white.png</file>
+        <file>image/btn_delete_black.png</file>
+        <file>image/btn_delete_white.png</file>
+        <file>image/btn_down_black.png</file>
+        <file>image/btn_down_white.png</file>
+        <file>image/btn_lower_black.png</file>
+        <file>image/btn_lower_white.png</file>
+        <file>image/btn_up_black.png</file>
+        <file>image/btn_up_white.png</file>
+        <file>image/btn_upper_black.png</file>
+        <file>image/btn_upper_white.png</file>
+        <file>image/delete_black.png</file>
+        <file>image/delete_white.png</file>
+        <file>image/btn_enter_black.png</file>
+        <file>image/btn_enter_white.png</file>
+    </qresource>
+</RCC>
