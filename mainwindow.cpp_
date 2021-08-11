@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include "include/ExternalApi.h"
-#include "include/xosal.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,10 +16,11 @@ MainWindow::MainWindow(QWidget *parent) :
     comFunc comfunc;
     QStringList fileComtent = comfunc.readConfig("TerminaManage.cnf");
     QStringList conf = comfunc.analysisComten(fileComtent);
-    ExternalApi::setVolume(s_devInfo.volume);
+
 
     /*创建识别线程*/
     /*detect*/
+#if 0
     m_detectThread = new detect();
     detectThread_id = new QThread;
     if(conf.size() == 4)
@@ -35,22 +35,17 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     connect(this,&MainWindow::setCheck,m_detectThread,&detect::isCheck);
     connect(detectThread_id,SIGNAL(started()),m_detectThread,SLOT(threadStart()));
-
-    connect(m_detectThread, &detect::sendtoMain,this,&MainWindow::detectResult);
-    connect(m_detectThread, &detect::hasFace,this,&MainWindow::startlightInterval);
-    connect(m_detectThread, &detect::hasDetect,this,&MainWindow::startfaceInterval);
+    connect(m_detectThread, &detect::detectResult,this,&MainWindow::detectResult);
     connect(m_detectThread, &detect::finished, detectThread_id, &QThread::exit);
     connect(m_detectThread, &detect::finished, detectThread_id, &QThread::quit);
 
     m_detectThread->moveToThread(detectThread_id);
-    detectThread_id->start();
-
-    connect(T_detect,SIGNAL(timeout()),this,SLOT(endfaceInterval()));
-    connect(T_light,SIGNAL(timeout()),this,SLOT(endlightInterval()));
-
+  //  detectThread_id->start();
+#endif
     /*********************************************/
 
     /*communication*/
+#if 0
     m_communitThread = new communication();
     communitThread_id = new QThread;
     connect(communitThread_id,SIGNAL(started()),m_communitThread,SLOT(threadStart()));
@@ -58,10 +53,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_communitThread, &communication::finished, communitThread_id, &QThread::quit);
 
     m_communitThread->moveToThread(communitThread_id);
- //   communitThread_id->start();
-     /*********************************************/
+    communitThread_id->start();
+#endif
+    /*********************************************/
 
     /*devicescan --wifi and 4G*/
+#if 0
     m_devicescanThread= new devicescan();
     devicescanThread_id = new QThread;
     connect(devicescanThread_id,SIGNAL(started()),m_devicescanThread,SLOT(threadStart()));
@@ -69,10 +66,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_devicescanThread, &devicescan::finished, devicescanThread_id, &QThread::quit);
     connect(m_devicescanThread, &devicescan::isModleExisted, this, &MainWindow::modleExisted);
     m_devicescanThread->moveToThread(devicescanThread_id);
-    devicescanThread_id->start();
+
+    QTimer *wifiTimer = new QTimer();
+    wifiTimer->setSingleShot(true);
+    wifiTimer->start(3000);
+    connect(wifiTimer,SIGNAL(timeout()),this,SLOT(startwifi()));
+     devicescanThread_id->start();
+#else
+
+
+#endif
      /*********************************************/
 
-
+#if 0
     /*check key status*/
     /*check door num */
      bool ret = ExternalApi::getDoorCount(offFireNum);
@@ -105,7 +111,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Mainwindow_timer = startTimer(1000); //开始显示时间定时
 
     /*display detect result*/
-    disInfo = new QWidget(this);    
+    disInfo = new QWidget(this);
+    qDebug()<<"wide:"<<this->width()<<"height:"<<this->height();
     disInfo->setGeometry((this->width()-670)/2,(this->height()-290)/2,670,290);
     disInfo->setObjectName("disInfo");
     disInfo->setStyleSheet("#disInfo{background-image:url(:/faceright.png);}");
@@ -117,41 +124,8 @@ MainWindow::MainWindow(QWidget *parent) :
     name->setGeometry(268,30,120,50);
     name->setStyleSheet("color:#ffffff;font:24px;font:bold;");
     disInfo->hide();
-    connect(T_faceResult,SIGNAL(timeout()),this,SLOT(showTime()));
-    QPushButton *bt_menu = new QPushButton(this);
-    bt_menu->setFlat(true);
-    bt_menu->setStyleSheet("background:transparent;background-image:url(:/back.png)");
-    bt_menu->setGeometry(0,0,200,100);
-  //  connect(bt_menu,SIGNAL(clicked(bool)),this,SLOT(on_bt_set_clicked()));
-    connect(bt_menu,SIGNAL(pressed()),this,SLOT(bt_menu_pressed()));
-    connect(bt_menu,SIGNAL(released()),this,SLOT(bt_menu_released()));
-    connect(T_btMenu,SIGNAL(timeout()),this,SLOT(on_bt_set_clicked()));
-
-    plate = new QLabel(this);
-    plate->setStyleSheet("font:16pt;font:bold;color:#ffffff");
-    //plate->setText(s_devInfo.chepai);
-    plate->setText("粤B88888");
-    plate->setGeometry(20, 650, 320, 60);
-
-    perNum = new QLabel(this);
-    perNum->setStyleSheet("font:44pt;color:#00ff00");
-    //plate->setText(s_devInfo.chepai);
-    perNum->setText("88");
-    perNum->setGeometry(1050,510,200,200);
-
-
-    /***dis net signal***/
-    QTimer *T_signal = new QTimer;
-    T_signal->setInterval(5000);
-    T_signal->start(5000);
-    connect(T_signal,SIGNAL(timeout()),this,SLOT(showSigal()));
-    /********************/
-
-
-    /*left time*/
-    connect(T_left,SIGNAL(timeout()),this,SLOT(alarmEvent()));
-    connect(T_playAlarm,SIGNAL(timeout()),this,SLOT(replayalarm()));
-    /******/
+    detectResult("欧阳娜娜","F:/work/1126/project/test/test/123.jpg");
+#endif
 }
 
 
@@ -192,7 +166,43 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         ui->lb_timer->setText(currentTime+" "+currentDate);
 
+        /*display net*/
+        string sWifiName, sWifiMac;
+        int iRssi = 0;
+        WIFI_STATUS status;
+#if 0
+        if (NetworkConf::Instance()->wifiCheck(status, sWifiName, sWifiMac, iRssi))
+        {
+            if(WIFI_STATUS_CONNECTED == status)
+            {
+             //    qDebug()<<"iRssi:"<<iRssi;
+                comFunc comfunc;
+                wifiMac = comfunc.stddToqstring(sWifiMac);
+                wifiIp = comfunc.stddToqstring(NetworkConf::Instance()->netIp());
+                if(iRssi>=-120&&iRssi<=-100)
+                {
+                    ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_one.png)");
+                }else if(iRssi>-100&&iRssi<=-75)
+                {
+                     ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_two.png)");
+                }else if(iRssi>-75&&iRssi<=-55)
+                {
+                     ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_three.png)");
+                }
+                else
+                {
+                    ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_four.png)");
+                }
+            }
+            else
+            {
+                qDebug()<<"wifi statu:"<<status;
+            }
 
+         }
+#else
+   //    ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_four.png)");
+#endif
 
     }
 }
@@ -210,8 +220,6 @@ void MainWindow::timeOver()
             qDebug()<<"offFire slove offFire status:"<<QString::number(status);
             statusbak = status;
             /*to display offFire sigal off*/
-            T_left->stop();
-            T_playAlarm->stop();
 
         }
 
@@ -220,7 +228,6 @@ void MainWindow::timeOver()
             qDebug()<<"offFire open status:"<<QString::number(status);
             statusbak = status;
             /*to display offFire sigal*/
-            T_left->start(s_devInfo.leftDetect*1000*60);
 
         }
     }
@@ -245,132 +252,26 @@ void MainWindow::detectResult(QString username,QString path)
 {
     QImage image;
     QPixmap *pixmap = new QPixmap;
-    name->clear();
-    pic->clear();
-    name->setText(username);
-    if(path.length()==0)
+    image.load(path);
+    if(image.isNull() == true)
     {
-        pic->setStyleSheet("border-image:url(:/defaultpic.png)");
+        *pixmap = QPixmap::fromImage(image.scaled(QSize(92, 94), Qt::KeepAspectRatio));
     }
     else
     {
-        image.load(path);
-        if(image.isNull() == true)
-        {
-            *pixmap = QPixmap::fromImage(image.scaled(QSize(92, 94), Qt::KeepAspectRatio));
-        }
-        else
-        {
-            *pixmap = QPixmap::fromImage(image.scaled(QSize(100, 100), Qt::KeepAspectRatio));
-        }
-
-        pic->setScaledContents(true);
-        pic->setPixmap(*pixmap);
+        *pixmap = QPixmap::fromImage(image.scaled(QSize(100, 100), Qt::KeepAspectRatio));
     }
+
+    pic->setScaledContents(true);
+    pic->setPixmap(*pixmap);
+    name->setText(username);
     disInfo->show();
-    T_faceResult->start(3000);
-}
-
-void MainWindow::showTime()
-{
-    disInfo->hide();
-    T_faceResult->stop();
 }
 
 
-void MainWindow::showSigal()
+void MainWindow::startwifi()
 {
-    /*display net*/
-    string sWifiName, sWifiMac;
-    int iRssi = 0;
-    WIFI_STATUS status;
-
-    if (NetworkConf::Instance()->wifiCheck(status, sWifiName, sWifiMac, iRssi))
-    {
-        if(WIFI_STATUS_CONNECTED == status)
-        {
-         //    qDebug()<<"iRssi:"<<iRssi;
-            comFunc comfunc;
-            wifiMac = comfunc.stddToqstring(sWifiMac);
-            wifiIp = comfunc.stddToqstring(NetworkConf::Instance()->netIp());
-            if(iRssi>=-120&&iRssi<=-100)
-            {
-                ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_one.png)");
-            }else if(iRssi>-100&&iRssi<=-75)
-            {
-                 ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_two.png)");
-            }else if(iRssi>-75&&iRssi<=-55)
-            {
-                 ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_three.png)");
-            }
-            else
-            {
-                ui->lb_net->setStyleSheet("border-image:url(:/state_wifi_four.png)");
-            }
-        }
-        else
-        {
-            qDebug()<<"wifi statu:"<<status;
-        }
-
-     }
-
-}
-
-
-
-void MainWindow::endfaceInterval()
-{
-    T_detect->stop();
-    detect::Instance()->m_bFaceSucessSounded = false;
-    detect::Instance()->m_bFaceFaileSounded = false;
-
-
-}
-
-void MainWindow::endlightInterval()
-{
-    T_light->stop();
-    std::string error;
-    ExternalApi::setLightBrightness(0,error);
-}
-
-
-void MainWindow::startfaceInterval()
-{
-    T_detect->start(s_devInfo.faceInterval*1000);
-}
-
-void MainWindow::startlightInterval()
-{
-    T_light->start(10000);
-    std::string error;
-    ExternalApi::setLightBrightness(90,error);
-}
-
-void MainWindow::bt_menu_released()
-{
-    qDebug()<<"button release";
-    T_btMenu->stop();
-
-}
-
-void MainWindow::bt_menu_pressed()
-{
-    T_btMenu->start(3000);
-}
-
-void MainWindow::alarmEvent()
-{
-    /*send to sever left message*/
-    ExternalApi::playAudio("/oem/Face/wav/alarm.wav");
-    T_playAlarm->start(2*60*1000);
-
-}
-
-void MainWindow::replayAlarm()
-{
-    /*send to sever left message*/
-    ExternalApi::playAudio("/oem/Face/wav/alarm.wav");
-
+    qDebug()<<"5555555555555555555555555555555555555555";
+  //  devicescanThread_id->start();
+//   detectThread_id->start();
 }

@@ -250,7 +250,7 @@ S_FILEFLAG *comFunc::UsbExit(QString path)
     }
 #else
     qDebug()<<"path:"<<path;
-  /*
+
     QDir dir;
     dir.setPath(path);
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
@@ -259,7 +259,7 @@ S_FILEFLAG *comFunc::UsbExit(QString path)
 
     if (list.count() <= 0)
     {
-        qDebug() << "ÎÄ¼þ¼ÐÎª¿Õ";
+        qDebug() << "file is null";
         return &fileFlag;
     }
     else
@@ -299,7 +299,7 @@ S_FILEFLAG *comFunc::UsbExit(QString path)
         }
 
     }
-     */
+    return (&fileFlag);
      #endif
 }
 

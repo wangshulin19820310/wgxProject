@@ -175,7 +175,7 @@ void detect::UserInfoRecv(S_UserInfo* pUserInfo, void* pObj)
             //播放声音
               if (!mydetect->m_bFaceSucessSounded)
             {
-                ExternalApi::playAudio("/oem/Intellect/app/wav/distinguish.wav");
+                ExternalApi::playAudio("/oem/Face/wav/distinguish.wav");
                 mydetect->m_bFaceSucessSounded = true;
                 emit mydetect->hasDetect();
             }
@@ -191,7 +191,7 @@ void detect::UserInfoRecv(S_UserInfo* pUserInfo, void* pObj)
                 //播放识别失败声音
                 if (!mydetect->m_bFaceFaileSounded)
                 {
-                    ExternalApi::playAudio("/oem/Intellect/app/wav/distinguish_fail.wav");
+                    ExternalApi::playAudio("/oem/Face/wav/distinguish_fail.wav");
                     mydetect->m_bFaceFaileSounded = true;
                     emit mydetect->hasDetect();
                     qDebug()<<"mydetect->m_bFaceFaileSounded:"<<mydetect->m_bFaceFaileSounded;

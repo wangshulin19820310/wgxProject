@@ -71,10 +71,10 @@
    <widget class="QPushButton" name="bt_cancel">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>600</y>
+      <x>370</x>
+      <y>610</y>
       <width>190</width>
-      <height>60</height>
+      <height>70</height>
      </rect>
     </property>
     <property name="focusPolicy">
@@ -87,10 +87,10 @@
    <widget class="QPushButton" name="bt_confirm">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>600</y>
+      <x>710</x>
+      <y>610</y>
       <width>190</width>
-      <height>60</height>
+      <height>70</height>
      </rect>
     </property>
     <property name="focusPolicy">
@@ -126,7 +126,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">

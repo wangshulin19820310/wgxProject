@@ -46,6 +46,10 @@ private slots:
     void endlightInterval();
     void startfaceInterval();
     void startlightInterval();
+    void bt_menu_released();
+    void bt_menu_pressed();
+    void alarmEvent();
+    void replayAlarm();
 
 signals:
     void setCheck(bool);
@@ -58,10 +62,13 @@ private:
     communication *m_communitThread ;
     devicescan *m_devicescanThread;
     QWidget *disInfo;
-    QLabel *pic,*name;
+    QLabel *pic,*name,*plate,*perNum;
     QTimer *T_faceResult = new QTimer;
     QTimer *T_light = new QTimer();
     QTimer *T_detect = new QTimer();
+    QTimer *T_btMenu = new QTimer();
+    QTimer *T_left  = new QTimer();
+    QTimer *T_playAlarm  = new QTimer();
 };
 
 #endif // MAINWINDOW_H

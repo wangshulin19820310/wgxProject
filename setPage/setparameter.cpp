@@ -647,47 +647,103 @@ void setparameter::disIp()
 	
 void setparameter::on_bt_readconf_clicked()
 {
-   // S_FILEFLAG *fileFlag;
-   // comFunc mfunc;
-   // mfunc.UsbExit("/media/usb0/");
-     /*
-      * fileFlag = mfunc.UsbExit("/media/usb0/");
-    QString up,conf,stand,voice;
-    if(fileFlag->flag_up)
-    {
-        up = "程序文件升级成功";
-    }
-    if(fileFlag->flag_conf)
-    {
-        conf = "配置文件升级成功";
-    }
-    if(fileFlag->flag_conf)
-    {
-        stand = "待机图片升级成功";
-    }
-    if(fileFlag->flag_conf)
-    {
-        voice = "语音文件升级成功";
-    }
-
-    QMessageBox megboxWrong;
-    megboxWrong.setText(QObject::tr("%1\n%2\n%3\n%4").arg(up).arg(conf).arg(stand).arg(voice));
-    megboxWrong.setWindowTitle(QObject::tr("提示"));
-    megboxWrong.setIcon(QMessageBox::Information);
-    QPushButton *okbut = megboxWrong.addButton(QObject::tr("确 定"),QMessageBox::YesRole);
-    megboxWrong.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    megboxWrong.exec();
-    */
+     QMessageBox megboxWrong;
+     comFunc mfunc;
+    S_FILEFLAG fileFlag;
+    QString path = "/media/usb0/";
     QDir dir;
-    dir.setPath("/media/usb0/");
+    dir.setPath(path);
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     QFileInfoList list = dir.entryInfoList();
     QString src,des;
 
     if (list.count() <= 0)
     {
-        qDebug() << "文件夹为空";
+        megboxWrong.setText(QObject::tr("未识别到U盘，请检查"));
+        megboxWrong.setWindowTitle(QObject::tr("提示"));
+        megboxWrong.setIcon(QMessageBox::Information);
+        QPushButton *okbut = megboxWrong.addButton(QObject::tr("确 定"),QMessageBox::YesRole);
+        megboxWrong.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        megboxWrong.exec();
+        return;
+    }
+    else
+    {
+
+        if(mfunc.isFileExist(path+"/face"))
+        {
+             src = path+"/face";
+             des = qApp->applicationDirPath()+"upApp";
+             if(QFile::copy(src,des))
+             {
+                    fileFlag.flag_up = true;
+             }
+        }
+
+        if(mfunc.isFileExist(path+"/TerminaManage.cnf"))
+        {
+
+             if(QFile::copy(path+"/TerminaManage.cnf",qApp->applicationDirPath()+"TerminaManage.cnf"))
+             {
+                    fileFlag.flag_conf = true;
+             }
+        }
+        if(mfunc.isFileExist(path+"/standby.png"))
+        {
+             if(QFile::copy(path+"/standby.png",qApp->applicationDirPath()+"standby.png"))
+             {
+                    fileFlag.flag_stand = true;
+             }
+        }
+        if(mfunc.isDirExist(path+"/voice/"))
+        {
+             if(QFile::copy(path+"/voice/*.aac",qApp->applicationDirPath()+"/wav/"))
+             {
+                    fileFlag.flag_voice= true;
+             }
+        }
 
     }
+
+
+    if((false == fileFlag.flag_conf ) && (false == fileFlag.flag_up ) && (false == fileFlag.flag_voice ) &&
+            (false == fileFlag.flag_stand ))
+    {
+        megboxWrong.setText(QObject::tr("未识别到可升级文件，请检查！"));
+        megboxWrong.setWindowTitle(QObject::tr("提示"));
+        megboxWrong.setIcon(QMessageBox::Information);
+        QPushButton *okbut = megboxWrong.addButton(QObject::tr("确 定"),QMessageBox::YesRole);
+        megboxWrong.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        megboxWrong.exec();
+        return;
+    }
+    else
+    {
+        QString up,conf,stand,voice;
+        if(fileFlag.flag_up)
+        {
+            up = "程序文件升级成功";
+        }
+        if(fileFlag.flag_conf)
+        {
+            conf = "配置文件升级成功";
+        }
+        if(fileFlag.flag_conf)
+        {
+            stand = "待机图片升级成功";
+        }
+        if(fileFlag.flag_conf)
+        {
+            voice = "语音文件升级成功";
+        }
+
+        megboxWrong.setText(QObject::tr("%1\n%2\n%3\n%4").arg(up).arg(conf).arg(stand).arg(voice));
+        megboxWrong.setWindowTitle(QObject::tr("提示"));
+        megboxWrong.setIcon(QMessageBox::Information);
+        QPushButton *okbut = megboxWrong.addButton(QObject::tr("确 定"),QMessageBox::YesRole);
+        megboxWrong.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        megboxWrong.exec();
+    }
+
 }
 

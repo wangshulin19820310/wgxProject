@@ -17,5 +17,6 @@
         <file>state_wifi_two.png</file>
         <file>faceright.png</file>
         <file>defaultpic.png</file>
+        <file>back.png</file>
     </qresource>
 </RCC>
