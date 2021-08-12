@@ -152,6 +152,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(T_left,SIGNAL(timeout()),this,SLOT(alarmEvent()));
     connect(T_playAlarm,SIGNAL(timeout()),this,SLOT(replayalarm()));
     /******/
+
+
 }
 
 
@@ -374,3 +376,6 @@ void MainWindow::replayAlarm()
     ExternalApi::playAudio("/oem/Face/wav/alarm.wav");
 
 }
+
+
+

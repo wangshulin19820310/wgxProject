@@ -37,6 +37,7 @@ public:
     void modleExisted(bool,bool);
     void detectResult(QString name,QString picPath);
 
+
 private slots:
     void on_bt_set_clicked();
     void timeOver();

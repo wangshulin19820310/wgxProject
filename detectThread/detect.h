@@ -50,6 +50,7 @@ public slots:
     void closeThread(void);
     void threadStart();
     void isCheck(bool);
+    void createFeature(const char *picPath);
 
 
 

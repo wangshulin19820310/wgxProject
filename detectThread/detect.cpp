@@ -48,7 +48,7 @@ void detect::threadStart()
     getAllFeatrue();
     std::string error;
     ExternalApi::setIrLight(1, error);;
-
+    createFeature("/oem/Face/1.jpg");
     //设置体温补偿
 #if 0    
     ExternalApi::setTempCB(TempRecv, this);
@@ -489,5 +489,21 @@ bool detect::saveRecord(S_RECORDINFO *s_recordInfo)
     return true;
 }
 
+
+void detect::createFeature(const char *picPath,char &out,int &len)
+{
+    char feature[4096]={0};
+    int featureLen;
+    std::string error;
+    bool ret=ExternalApi::extractFeature(picPath,feature,featureLen,error);
+ #if 0
+    for(int i=0;i<featureLen;i++)
+    {
+      //  qDebug()<<QString::number((int)feature[i],16);
+        printf("%02x ",feature[i]);
+    }
+    fflush(stdout);
+#endif
+}
 
 
